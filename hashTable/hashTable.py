@@ -1,0 +1,1 @@
+print(hash(input('key : ')))
