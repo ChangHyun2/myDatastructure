@@ -1,34 +1,110 @@
-// basic hash function
-
-function basicHash(key, arrayLen) {
-  let total = 0;
-  for (let char of key) {
-    total += char.charCodeAt();
-    total = total % arrayLen;
+class MyHashTable {
+  constructor(size = 53) {
+    this.table = new Array(size);
+    this.keys = {};
   }
-  return total;
+
+  _hash(key) {
+    let total = 0;
+    let WEIRD_PRIME = 31;
+
+    for (let i = 0; i < Math.min(key.length, 100); i++) {
+      let char = key[i];
+      let value = char.charCodeAt(0) - 96;
+      total = (total * WEIRD_PRIME + value) % this.table.length;
+    } // from colt's hash function
+
+    return total;
+  }
+
+  set(key, value) {
+    const hash = this._hash(key);
+    this.keys[key] = hash;
+
+    if (!this.table[hash]) {
+      this.table[hash] = [{ key, value }];
+      return this.table[hash];
+    }
+
+    const bucket = this.table[hash];
+    const originPair = bucket.find((item) => item.key === key);
+
+    if (originPair) {
+      originPair.value = value;
+    } else {
+      bucket.push({ key, value });
+    }
+
+    return bucket;
+  }
+
+  get(key) {
+    const hash = this._hash(key);
+
+    if (!this.keys[key]) {
+      return undefined;
+    }
+
+    const bucket = this.table[hash];
+
+    return bucket.find((item) => item.key === key).value;
+  }
+  delete(key) {
+    const hash = this.keys[key];
+    if (hash) {
+      delete this.keys[key];
+      this.table[hash].filter((item) => item.key !== key);
+    }
+  }
+
+  getKeys() {
+    return this.keys;
+  }
+
+  has(key) {
+    return Object.hasOwnProperty.call(this.keys, key);
+  }
+  values() {
+    const values = new Set();
+
+    this.table.forEach(
+      (bucket) =>
+        bucket &&
+        bucket.forEach(({ value }) => {
+          !values.has(value) && values.add(value);
+        })
+    );
+
+    return [...values];
+  }
+  items() {
+    const items = [];
+
+    this.table.forEach(
+      (bucket) => bucket && bucket.forEach((item) => items.push(item))
+    );
+
+    return items;
+  }
 }
 
-console.log(basicHash("hello", 10), 10);
-console.log(basicHash("nice", 10), 10);
-console.log(basicHash("pink", 10), 10);
-
-/*
-
-기존 스터디 구성원분들 참여율이 저조해 
-기존방에는 공지드리고 단톡방을 새로 만들었는데요,
-
-앞으로는 취준생에 한해 스터디원을 모집할 예정입니다.
-다음주 중에 다시 한 번 모집글 올려보겠습니다.
-그 때까지 노션, 깃허브에 스터디 활동을 활발히 기록한다면
-열심히 해주실 분들이 와주시지 않을까... 생각합니다.
-
-은지님은 notion 코테란에 2문제를 출제해주시고
-일요일까지 2문제를 우선적으로 준비해주시면 됩니다.
-
-이번 출제 문제는 2nd week로 라벨링 되었는데요,
-혹시나 버거우시다면 체육복, 크레인 인형뽑기, 모의고사, 비밀지도, 문자열 순으로 풀어주세요.
-
-
-
-*/
+const myHashTable = new MyHashTable();
+myHashTable.set("apple", "delicious");
+myHashTable.set("awple", "delicious");
+myHashTable.set("apele", "delicious");
+myHashTable.set("juicf", "delicious");
+myHashTable.set("efpla", "diligent");
+myHashTable.set("epdla", "sleepy");
+myHashTable.set("eddla", "happy");
+myHashTable.set("espla", "bad");
+console.log(myHashTable.get("eppla"));
+console.log(myHashTable.get("juicf"));
+console.log(myHashTable);
+console.log(myHashTable.getKeys());
+console.log(myHashTable.has("apple"));
+console.log(myHashTable.has("appld"));
+console.log(myHashTable.items());
+console.log(myHashTable.values());
+myHashTable.delete("epdla");
+console.log(myHashTable.items());
+console.log(myHashTable.getKeys());
