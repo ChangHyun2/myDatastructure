@@ -83,10 +83,6 @@ class SinglyLinkedList {
   }
 
   deleteHead() {
-    if (!this.head) {
-      return null;
-    }
-
     const originHead = this.head;
 
     if (this.head === this.tail) {
@@ -197,6 +193,7 @@ class SinglyLinkedList {
   reverse() {
     //https://www.geeksforgeeks.org/reverse-a-linked-list/ 참조
     this.tail = this.head;
+
     let current = this.head;
     let prev = null;
 
